@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/register", "/api/user/login", "/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(); // optional: enables basic auth for testing
+            .httpBasic(); // optional for testing
 
         return http.build();
     }
@@ -30,7 +30,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // allow all origins
+        configuration.setAllowedOriginPatterns(List.of("*")); // use allowedOriginPatterns instead of allowedOrigins
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
