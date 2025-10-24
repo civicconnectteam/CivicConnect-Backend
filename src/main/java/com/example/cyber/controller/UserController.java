@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin("*")
@@ -33,16 +35,22 @@ public class UserController {
     // Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        return userService.login(user.getEmail(), user.getPassword())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"));
+        Optional<User> loggedInUser = userService.login(user.getEmail(), user.getPassword());
+        if (loggedInUser.isPresent()) {
+            return ResponseEntity.ok(loggedInUser.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
     // Profile
     @GetMapping("/profile/{id}")
     public ResponseEntity<?> getProfile(@PathVariable Long id) {
-        return userService.getProfile(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
+        Optional<User> profile = userService.getProfile(id);
+        if (profile.isPresent()) {
+            return ResponseEntity.ok(profile.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
     }
 }

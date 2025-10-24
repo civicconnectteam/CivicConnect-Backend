@@ -1,24 +1,29 @@
-# Use an official OpenJDK runtime as a parent image
-FROM eclipse-temurin:17-jdk-alpine
+# Use an official Maven + JDK image for building
+FROM maven:3.9.2-eclipse-temurin-17 AS build
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY mvnw pom.xml ./
-COPY .mvn .mvn
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Copy source code
+# Copy all source code
 COPY src ./src
 
-# Make mvnw executable
-RUN chmod +x mvnw
+# Build the project and skip tests
+RUN mvn clean package -DskipTests
 
-# Build the project
-RUN ./mvnw clean package -DskipTests
+# Second stage: use a lightweight JDK runtime
+FROM eclipse-temurin:17-jdk-jammy
 
-# Expose the port your app runs on
+WORKDIR /app
+
+# Copy the jar from the build stage
+COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
+
+# Expose the port your Spring Boot app runs on
 EXPOSE 8082
 
-# Run the Spring Boot app
-CMD ["java", "-jar", "target/backend-0.0.1-SNAPSHOT.jar"]
+# Run the Spring Boot application
+ENTRYPOINT ["java","-jar","app.jar"]
