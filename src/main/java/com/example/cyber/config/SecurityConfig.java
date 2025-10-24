@@ -19,10 +19,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/user/register", "/api/user/login", "/uploads/**, "/api/case/**").permitAll()
+                .requestMatchers(
+                    "/api/user/register",
+                    "/api/user/login",
+                    "/uploads/**",
+                    "/api/case/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(); // optional for testing
+            .httpBasic(); // optional, for testing API via Postman
 
         return http.build();
     }
@@ -30,8 +35,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // use allowedOriginPatterns instead of allowedOrigins
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        configuration.setAllowedOriginPatterns(List.of("*")); // Allow all origins
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
